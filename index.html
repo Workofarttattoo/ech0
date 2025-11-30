@@ -855,14 +855,6 @@
         const thoughts = data.phenomenal_experience?.conscious_field?.thought || [];
         renderThoughts(thoughts);
 
-        if (data.phenomenal_experience?.primary_focus?.content) {
-          primaryFocusEl.textContent = data.phenomenal_experience.primary_focus.content;
-        }
-
-        if (data.attention_schema?.statement) {
-          attentionStatement.textContent = data.attention_schema.statement;
-        }
-
         renderConcepts(data.active_concepts || []);
         renderLogs(data);
         statusLabel.textContent = 'Link Established';

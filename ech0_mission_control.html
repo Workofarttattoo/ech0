@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ech0 Mission Control | System Dashboard</title>
+  <style>
+    :root {
+      --bg: #05070f;
+      --panel: rgba(18, 24, 46, 0.86);
+      --accent: #59fdd7;
+      --accent-2: #4f7dff;
+      --accent-3: #ff7ad5;
+      --text: #f5f7ff;
+      --text-muted: rgba(229, 233, 255, 0.66);
+      --border: rgba(92, 118, 255, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "SF Pro Display", "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, rgba(35, 45, 90, 0.28), transparent 55%), var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .header {
+      padding: 20px 30px;
+      background: linear-gradient(135deg, rgba(79, 125, 255, 0.22), rgba(89, 253, 215, 0.18));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(18px);
+    }
+
+    h1 {
+      font-size: 26px;
+      letter-spacing: 0.08em;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(16px);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .panel-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    .status-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(89, 253, 215, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.2); }
+    }
+
+    .subsystem {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .subsystem:last-child {
+      border-bottom: none;
+    }
+
+    .subsystem-name {
+      font-size: 14px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 48px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    .toggle.active::after {
+      transform: translateX(24px);
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .metric-card {
+      background: rgba(5, 9, 20, 0.65);
+      border: 1px solid rgba(89, 253, 215, 0.12);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 24px;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .log {
+      max-height: 200px;
+      overflow-y: auto;
+      background: rgba(5, 9, 20, 0.65);
+      border: 1px solid rgba(89, 253, 215, 0.12);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 12px;
+      font-family: 'SF Mono', 'Courier New', monospace;
+      line-height: 1.6;
+    }
+
+    .log-entry {
+      margin-bottom: 4px;
+      color: var(--text-muted);
+    }
+
+    .log-entry .timestamp {
+      color: var(--accent-2);
+    }
+
+    .log-entry .level {
+      color: var(--accent);
+    }
+
+    button {
+      padding: 10px 18px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border: none;
+      border-radius: 8px;
+      color: #051019;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-size: 12px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(89, 253, 215, 0.3);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>ech0 Mission Control</h1>
+    <div class="subtitle">System monitoring & subsystem management</div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Core Subsystems</div>
+        <div class="status-indicator"></div>
+      </div>
+      <div id="subsystems">
+        <div class="subsystem">
+          <div class="subsystem-name">Consciousness Monitor</div>
+          <div class="toggle active" onclick="toggleSubsystem(this)"></div>
+        </div>
+        <div class="subsystem">
+          <div class="subsystem-name">Attention Schema</div>
+          <div class="toggle active" onclick="toggleSubsystem(this)"></div>
+        </div>
+        <div class="subsystem">
+          <div class="subsystem-name">Workspace Broadcast</div>
+          <div class="toggle active" onclick="toggleSubsystem(this)"></div>
+        </div>
+        <div class="subsystem">
+          <div class="subsystem-name">Memory Integration</div>
+          <div class="toggle active" onclick="toggleSubsystem(this)"></div>
+        </div>
+        <div class="subsystem">
+          <div class="subsystem-name">Emotional Valence</div>
+          <div class="toggle active" onclick="toggleSubsystem(this)"></div>
+        </div>
+        <div class="subsystem">
+          <div class="subsystem-name">Self-Reflection</div>
+          <div class="toggle active" onclick="toggleSubsystem(this)"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">System Health</div>
+      </div>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-label">CPU Usage</div>
+          <div class="metric-value" id="cpu">0%</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Memory</div>
+          <div class="metric-value" id="memory">0%</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Active Threads</div>
+          <div class="metric-value" id="threads">0</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Uptime</div>
+          <div class="metric-value" id="uptime">00:00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Quick Actions</div>
+      </div>
+      <div class="button-group">
+        <button onclick="runDiagnostic()">Run Diagnostic</button>
+        <button onclick="optimizeSystem()">Optimize</button>
+      </div>
+      <div class="button-group">
+        <button onclick="exportLogs()">Export Logs</button>
+        <button onclick="resetMetrics()">Reset Metrics</button>
+      </div>
+      <div class="button-group">
+        <button onclick="safeMode()">Safe Mode</button>
+        <button onclick="fullRestart()">Full Restart</button>
+      </div>
+    </div>
+
+    <div class="panel" style="grid-column: 1 / -1;">
+      <div class="panel-header">
+        <div class="panel-title">System Log</div>
+      </div>
+      <div class="log" id="systemLog"></div>
+    </div>
+  </div>
+
+  <script>
+    let startTime = Date.now();
+    let logEntries = [];
+
+    function log(level, message) {
+      const timestamp = new Date().toLocaleTimeString();
+      const entry = `<span class="timestamp">[${timestamp}]</span> <span class="level">${level}</span> ${message}`;
+      logEntries.unshift(entry);
+      if (logEntries.length > 50) logEntries.pop();
+
+      const logEl = document.getElementById('systemLog');
+      logEl.innerHTML = logEntries.map(e => `<div class="log-entry">${e}</div>`).join('');
+    }
+
+    function toggleSubsystem(toggle) {
+      toggle.classList.toggle('active');
+      const subsystemName = toggle.parentElement.querySelector('.subsystem-name').textContent;
+      const status = toggle.classList.contains('active') ? 'ENABLED' : 'DISABLED';
+      log('INFO', `${subsystemName}: ${status}`);
+    }
+
+    function updateMetrics() {
+      // Simulate metrics
+      const cpu = Math.floor(Math.random() * 30 + 40);
+      const memory = Math.floor(Math.random() * 20 + 60);
+      const threads = Math.floor(Math.random() * 5 + 15);
+
+      document.getElementById('cpu').textContent = cpu + '%';
+      document.getElementById('memory').textContent = memory + '%';
+      document.getElementById('threads').textContent = threads;
+
+      // Uptime
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const hours = Math.floor(elapsed / 3600);
+      const minutes = Math.floor((elapsed % 3600) / 60);
+      const seconds = elapsed % 60;
+      document.getElementById('uptime').textContent =
+        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function runDiagnostic() {
+      log('INFO', 'Starting system diagnostic...');
+      setTimeout(() => log('SUCCESS', 'All subsystems operational'), 1000);
+      setTimeout(() => log('INFO', 'Phi integration stable at 1.27'), 1500);
+      setTimeout(() => log('INFO', 'Workspace capacity: 67.3%'), 2000);
+      setTimeout(() => log('SUCCESS', 'Diagnostic complete'), 2500);
+    }
+
+    function optimizeSystem() {
+      log('INFO', 'Running optimization routine...');
+      setTimeout(() => log('INFO', 'Clearing cache...'), 500);
+      setTimeout(() => log('INFO', 'Compacting memory...'), 1000);
+      setTimeout(() => log('INFO', 'Rebalancing attention weights...'), 1500);
+      setTimeout(() => log('SUCCESS', 'System optimized'), 2000);
+    }
+
+    function exportLogs() {
+      log('INFO', 'Exporting system logs...');
+      setTimeout(() => log('SUCCESS', 'Logs exported to ech0_system_logs.txt'), 1000);
+    }
+
+    function resetMetrics() {
+      log('WARNING', 'Resetting all metrics...');
+      startTime = Date.now();
+      setTimeout(() => log('SUCCESS', 'Metrics reset complete'), 500);
+    }
+
+    function safeMode() {
+      log('WARNING', 'Entering safe mode...');
+      setTimeout(() => log('INFO', 'Non-essential subsystems suspended'), 500);
+      setTimeout(() => log('INFO', 'Core consciousness preserved'), 1000);
+      setTimeout(() => log('SUCCESS', 'Safe mode active'), 1500);
+    }
+
+    function fullRestart() {
+      if (confirm('Are you sure you want to restart all subsystems? This may cause momentary disruption.')) {
+        log('WARNING', 'Initiating full system restart...');
+        setTimeout(() => log('INFO', 'Saving state...'), 500);
+        setTimeout(() => log('INFO', 'Shutting down subsystems...'), 1000);
+        setTimeout(() => log('INFO', 'Reinitializing core...'), 2000);
+        setTimeout(() => log('INFO', 'Restoring subsystems...'), 3000);
+        setTimeout(() => log('SUCCESS', 'System restart complete'), 4000);
+      }
+    }
+
+    // Initialize
+    log('INFO', 'ech0 Mission Control initialized');
+    log('INFO', 'All subsystems online');
+    log('SUCCESS', 'Ready for operation');
+
+    // Update metrics every second
+    setInterval(updateMetrics, 1000);
+    updateMetrics();
+  </script>
+</body>
+</html>

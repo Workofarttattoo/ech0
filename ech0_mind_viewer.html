@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ech0 Mind Viewer | Cognitive Field Visualizer</title>
+  <style>
+    :root {
+      --bg: #05070f;
+      --panel: rgba(18, 24, 46, 0.86);
+      --accent: #59fdd7;
+      --accent-2: #4f7dff;
+      --accent-3: #ff7ad5;
+      --text: #f5f7ff;
+      --text-muted: rgba(229, 233, 255, 0.66);
+      --border: rgba(92, 118, 255, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "SF Pro Display", "Segoe UI", sans-serif;
+      background: radial-gradient(circle at center, rgba(35, 45, 90, 0.28), transparent 70%), var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 20px 30px;
+      background: linear-gradient(135deg, rgba(79, 125, 255, 0.22), rgba(89, 253, 215, 0.18));
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(18px);
+    }
+
+    h1 {
+      font-size: 24px;
+      letter-spacing: 0.08em;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .canvas-container {
+      position: relative;
+      width: 100vw;
+      height: calc(100vh - 90px);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      background: rgba(12, 18, 38, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      min-width: 250px;
+      backdrop-filter: blur(12px);
+    }
+
+    .metric {
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .metric:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .metric-value {
+      font-size: 22px;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .legend {
+      position: absolute;
+      bottom: 30px;
+      left: 30px;
+      background: rgba(12, 18, 38, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      backdrop-filter: blur(12px);
+    }
+
+    .legend-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>ech0 Mind Viewer</h1>
+    <div class="subtitle">Live particle visualizer of cognitive field dynamics</div>
+  </div>
+
+  <div class="canvas-container">
+    <canvas id="mindCanvas"></canvas>
+
+    <div class="overlay">
+      <div class="metric">
+        <div class="metric-label">Active Particles</div>
+        <div class="metric-value" id="particleCount">0</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Field Intensity</div>
+        <div class="metric-value" id="intensity">0%</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Coherence</div>
+        <div class="metric-value" id="coherence">0%</div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-title">Particle Types</div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #59fdd7; box-shadow: 0 0 10px rgba(89,253,215,0.6);"></div>
+        <span>Conscious Thought</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #4f7dff; box-shadow: 0 0 10px rgba(79,125,255,0.6);"></div>
+        <span>Active Processing</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #ff7ad5; box-shadow: 0 0 10px rgba(255,122,213,0.6);"></div>
+        <span>Emotional Valence</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('mindCanvas');
+    const ctx = canvas.getContext('2d');
+    const particleCountEl = document.getElementById('particleCount');
+    const intensityEl = document.getElementById('intensity');
+    const coherenceEl = document.getElementById('coherence');
+
+    let particles = [];
+    let time = 0;
+
+    class Particle {
+      constructor(x, y, type) {
+        this.x = x;
+        this.y = y;
+        this.type = type; // 0: thought, 1: processing, 2: emotion
+        this.vx = (Math.random() - 0.5) * 2;
+        this.vy = (Math.random() - 0.5) * 2;
+        this.life = Math.random() * 300 + 200;
+        this.age = 0;
+        this.size = Math.random() * 3 + 2;
+
+        const colors = ['#59fdd7', '#4f7dff', '#ff7ad5'];
+        this.color = colors[type];
+      }
+
+      update(centerX, centerY) {
+        // Attract to center
+        const dx = centerX - this.x;
+        const dy = centerY - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > 0) {
+          this.vx += (dx / dist) * 0.05;
+          this.vy += (dy / dist) * 0.05;
+        }
+
+        // Add some swirl
+        const angle = Math.atan2(dy, dx);
+        this.vx += Math.cos(angle + Math.PI / 2) * 0.02;
+        this.vy += Math.sin(angle + Math.PI / 2) * 0.02;
+
+        // Damping
+        this.vx *= 0.98;
+        this.vy *= 0.98;
+
+        this.x += this.vx;
+        this.y += this.vy;
+        this.age++;
+      }
+
+      draw() {
+        const alpha = Math.min(1, 1 - (this.age / this.life));
+        ctx.globalAlpha = alpha * 0.8;
+
+        // Glow
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 3);
+        gradient.addColorStop(0, this.color);
+        gradient.addColorStop(1, 'transparent');
+
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Core
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      isDead() {
+        return this.age >= this.life;
+      }
+    }
+
+    function resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    function spawnParticles() {
+      const centerX = canvas.width / (window.devicePixelRatio || 1) / 2;
+      const centerY = canvas.height / (window.devicePixelRatio || 1) / 2;
+
+      // Spawn rate based on intensity
+      const spawnRate = 2 + Math.sin(time * 0.01) * 1.5;
+
+      for (let i = 0; i < spawnRate; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * 150 + 50;
+        const x = centerX + Math.cos(angle) * distance;
+        const y = centerY + Math.sin(angle) * distance;
+        const type = Math.floor(Math.random() * 3);
+
+        particles.push(new Particle(x, y, type));
+      }
+
+      // Limit total particles
+      if (particles.length > 500) {
+        particles = particles.slice(-500);
+      }
+    }
+
+    function updateMetrics() {
+      particleCountEl.textContent = particles.length;
+
+      const intensity = Math.min(100, Math.round((particles.length / 500) * 100));
+      intensityEl.textContent = intensity + '%';
+
+      // Calculate coherence based on how clustered particles are
+      const centerX = canvas.width / (window.devicePixelRatio || 1) / 2;
+      const centerY = canvas.height / (window.devicePixelRatio || 1) / 2;
+
+      let avgDist = 0;
+      particles.forEach(p => {
+        const dx = centerX - p.x;
+        const dy = centerY - p.y;
+        avgDist += Math.sqrt(dx * dx + dy * dy);
+      });
+      avgDist /= particles.length || 1;
+
+      const coherence = Math.max(0, Math.min(100, 100 - Math.round((avgDist / 200) * 100)));
+      coherenceEl.textContent = coherence + '%';
+    }
+
+    function animate() {
+      const width = canvas.width / (window.devicePixelRatio || 1);
+      const height = canvas.height / (window.devicePixelRatio || 1);
+
+      // Fade background
+      ctx.globalAlpha = 0.1;
+      ctx.fillStyle = '#05070f';
+      ctx.fillRect(0, 0, width, height);
+      ctx.globalAlpha = 1;
+
+      const centerX = width / 2;
+      const centerY = height / 2;
+
+      // Draw connections between nearby particles
+      ctx.globalAlpha = 0.15;
+      ctx.strokeStyle = '#59fdd7';
+      ctx.lineWidth = 0.5;
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 80) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Update and draw particles
+      particles.forEach(p => {
+        p.update(centerX, centerY);
+        p.draw();
+      });
+
+      // Remove dead particles
+      particles = particles.filter(p => !p.isDead());
+
+      // Spawn new particles
+      spawnParticles();
+
+      // Update metrics
+      updateMetrics();
+
+      time++;
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    animate();
+  </script>
+</body>
+</html>
