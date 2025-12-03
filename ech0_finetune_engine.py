@@ -56,7 +56,7 @@ class Ech0TrainingConfig:
     """Configuration for ech0 fine-tuning"""
 
     # Model configuration
-    base_model: str = "mistralai/Mistral-7B-Instruct-v0.3"  # Latest Mistral, no token required
+    base_model: str = "mistralai/Mistral-7B-Instruct-v0.2"  # Latest available, no token required
     model_max_length: int = 4096
 
     # LoRA configuration
@@ -135,7 +135,7 @@ class Ech0TrainingConfig:
         }
 
         return cls(
-            base_model=model_config.get('base_model', 'mistralai/Mistral-7B-Instruct-v0.3'),
+            base_model=model_config.get('base_model', 'mistralai/Mistral-7B-Instruct-v0.2'),
             lora_r=lora_config.get('rank', 16),
             lora_alpha=lora_config.get('alpha', 32),
             lora_dropout=lora_config.get('dropout', 0.05),
