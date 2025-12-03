@@ -8,9 +8,18 @@ system:
 
 # Base Model Configuration
 model:
-  base_model: "anthropic/claude-3-sonnet"  # Can be swapped for open models like Llama, Mistral
+  # Choose an open-source base model from HuggingFace
+  # Options (in order of recommendation):
+  # 1. "mistralai/Mistral-7B-Instruct-v0.3" - Latest instruct model (RECOMMENDED)
+  # 2. "mistralai/Mistral-7B-v0.1" - Original base model
+  # 3. "meta-llama/Llama-2-7b-hf" - Requires HF token + Meta approval
+  # 4. "microsoft/phi-2" - Smaller (2.7B), faster, good for testing
+  # 5. "tiiuae/falcon-7b" - Alternative 7B model
+  # 6. "NousResearch/Llama-2-7b-chat-hf" - Chat-optimized variant
+
+  base_model: "mistralai/Mistral-7B-Instruct-v0.3"  # Latest version, no token required
   architecture: "transformer"
-  context_length: 200000
+  context_length: 8192  # Mistral's native context (200k not supported by most models)
 
   # LoRA (Low-Rank Adaptation) Configuration for efficient fine-tuning
   lora:
