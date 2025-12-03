@@ -351,7 +351,43 @@ class PromptEngineeringDatasetGenerator(DomainDatasetGenerator):
 
     def generate_examples(self, num_examples: int) -> List[TrainingExample]:
         logger.info(f"💬 Generating {num_examples} prompt engineering examples...")
-        self.examples = []
+
+        templates = [
+            {
+                "instruction": "Improve this prompt using advanced prompt engineering techniques.",
+                "input": "Write code",
+                "output": "Improved prompt:\n\n'You are an expert software engineer. Write well-documented, tested Python code to implement a binary search algorithm. Include:\n1. Docstrings explaining parameters and return values\n2. Type hints\n3. Example usage\n4. Edge case handling\n5. Time complexity analysis'\n\nImprovements made:\n- Added role specification (expert software engineer)\n- Specified language (Python)\n- Detailed requirements (documentation, tests)\n- Structured output expectations\n- Asked for analysis"
+            },
+            {
+                "instruction": "Demonstrate chain-of-thought prompting.",
+                "input": "Problem: A farmer has 17 sheep. All but 9 die. How many are left?",
+                "output": "Chain-of-thought prompt:\n\n'Let's solve this step-by-step:\n1. Initial count: 17 sheep\n2. Parse the phrase \"all but 9 die\"\n3. \"All but 9\" means 9 survived\n4. Therefore, 9 sheep remain\n\nAnswer: 9 sheep'\n\nThis demonstrates breaking down reasoning into explicit steps."
+            },
+            {
+                "instruction": "Create a few-shot learning prompt.",
+                "input": "Task: Classify sentiment (positive/negative)",
+                "output": "Few-shot prompt:\n\n'Classify the sentiment of these reviews:\n\nExample 1: \"This product exceeded my expectations!\" → Positive\nExample 2: \"Terrible quality, broke immediately.\" → Negative\nExample 3: \"Amazing value for money!\" → Positive\n\nNow classify: \"Disappointed with the purchase.\" → ?'\n\nAnswer: Negative\n\nFew-shot learning provides examples to guide the model."
+            }
+        ]
+
+        examples = []
+        per_category = num_examples // len(self.categories)
+
+        for i in range(num_examples):
+            template = random.choice(templates)
+            example = TrainingExample(
+                instruction=template["instruction"],
+                input=template["input"],
+                output=template["output"],
+                domain=self.domain_name,
+                category=random.choice(self.categories),
+                difficulty="hard",
+                metadata={"generated_at": datetime.now().isoformat()}
+            )
+            examples.append(example)
+
+        self.examples = examples
+        logger.info(f"✅ Generated {len(examples)} prompt engineering examples")
         return self.examples
 
 
@@ -362,7 +398,36 @@ class CourtPredictionDatasetGenerator(DomainDatasetGenerator):
 
     def generate_examples(self, num_examples: int) -> List[TrainingExample]:
         logger.info(f"👨‍⚖️ Generating {num_examples} court prediction examples...")
-        self.examples = []
+
+        templates = [
+            {
+                "instruction": "Analyze this evidence and predict the likely case outcome.",
+                "input": "Case: Employment discrimination. Evidence: Company's AI hiring system rejected 80% of female applicants vs 20% of male applicants. Company has documentation showing they didn't know about bias. Strong statistical evidence of disparate impact.",
+                "output": "**Case Outcome Prediction:**\n\n**Likely Outcome:** Plaintiff (employee) likely to PREVAIL\n\n**Analysis:**\n1. **Disparate Impact Standard:** 80% vs 20% rejection rate far exceeds the 80% rule (4/5ths rule) used in discrimination cases\n2. **Employer Knowledge Irrelevant:** Under disparate impact theory, intent is not required\n3. **Burden Shifts:** Strong statistical evidence shifts burden to employer to prove business necessity\n4. **Defense Weak:** 'Didn't know' is not a valid defense for discriminatory outcomes\n\n**Predicted Result:** Settlement likely (70%), or judgment for plaintiff if trial (65% probability)\n\n**Key Factors:**\n- Statistical evidence is compelling\n- Recent case law favors plaintiffs in AI discrimination\n- Employers liable for tools they deploy"
+            },
+            {
+                "instruction": "Predict jury behavior based on case facts.",
+                "input": "Case: Medical malpractice. Sympathetic plaintiff (child). Complex medical testimony. Defendant doctor has good reputation. No clear negligence but bad outcome.",
+                "output": "**Jury Psychology Analysis:**\n\n**Predicted Verdict:** MIXED (55% plaintiff, 45% defendant)\n\n**Jury Factors:**\n\n**Pro-Plaintiff:**\n- Sympathy for injured child (strong emotional factor)\n- Bad outcome creates desire to assign blame\n- Medical complexity may confuse jury → favor plaintiff\n- 'Someone should pay' mentality\n\n**Pro-Defendant:**\n- Good doctor reputation (credibility)\n- No clear negligence shown\n- Jurors may understand bad outcomes happen\n- Expert testimony may vindicate doctor\n\n**Prediction:**\nCase will likely settle. If trial:\n- Urban jury: 60% plaintiff\n- Rural jury: 40% plaintiff\n- Depends heavily on plaintiff attorney's ability to simplify medical issues\n\n**Strategy:** Both sides should settle given uncertainty."
+            }
+        ]
+
+        examples = []
+        for i in range(num_examples):
+            template = random.choice(templates)
+            example = TrainingExample(
+                instruction=template["instruction"],
+                input=template["input"],
+                output=template["output"],
+                domain=self.domain_name,
+                category=random.choice(self.categories),
+                difficulty="expert",
+                metadata={"generated_at": datetime.now().isoformat()}
+            )
+            examples.append(example)
+
+        self.examples = examples
+        logger.info(f"✅ Generated {len(examples)} court prediction examples")
         return self.examples
 
 
@@ -373,7 +438,36 @@ class StockPredictionDatasetGenerator(DomainDatasetGenerator):
 
     def generate_examples(self, num_examples: int) -> List[TrainingExample]:
         logger.info(f"📈 Generating {num_examples} stock prediction examples...")
-        self.examples = []
+
+        templates = [
+            {
+                "instruction": "Analyze this stock using fundamental analysis principles. (Educational only - not financial advice)",
+                "input": "Company: Tech startup. P/E ratio: 150. Revenue growth: 200% YoY. Negative earnings. Strong cash position. Market cap: $5B. Industry avg P/E: 25.",
+                "output": "**DISCLAIMER: Educational analysis only. Not financial advice.**\n\n**Fundamental Analysis:**\n\n**Valuation Metrics:**\n- P/E of 150 vs industry 25 = HIGHLY OVERVALUED by traditional metrics\n- However, negative earnings make P/E misleading\n- Should use Price/Sales ratio instead for growth companies\n\n**Growth Analysis:**\n- 200% YoY revenue growth = EXCEPTIONAL\n- Indicates strong product-market fit\n- Typical of early-stage high-growth companies\n\n**Financial Health:**\n- Strong cash position = LOW bankruptcy risk\n- Can sustain operations during growth phase\n- Runway to profitability matters more than current earnings\n\n**Investment Thesis:**\n**Bull Case:** Revenue growth justifies premium. Path to profitability clear. Market leadership potential.\n**Bear Case:** Overvalued vs peers. No earnings. Market correction could hit growth stocks hard.\n\n**Risk Level:** HIGH (speculative growth investment)\n\n**Educational Conclusion:** Classic growth vs value trade-off. Suitable only for high-risk portfolios."
+            },
+            {
+                "instruction": "Perform technical analysis on this price action. (Educational only)",
+                "input": "Stock chart: Price broke above 200-day moving average. RSI: 72 (overbought). Volume: 3x average. MACD: bullish crossover. Resistance at $150.",
+                "output": "**DISCLAIMER: Educational analysis only. Not trading advice.**\n\n**Technical Analysis:**\n\n**Trend Analysis:**\n- Break above 200-day MA = BULLISH long-term trend confirmed\n- Strong momentum signal\n\n**Momentum Indicators:**\n- RSI at 72 = OVERBOUGHT territory (>70)\n- Warning: Possible pullback in short term\n- However, strong trends can stay overbought for extended periods\n\n**Volume Analysis:**\n- 3x average volume = STRONG conviction\n- Breakout on high volume = more reliable\n- Institutional buying likely\n\n**MACD:**\n- Bullish crossover = BUY signal confirmed\n- Momentum accelerating\n\n**Key Levels:**\n- Resistance: $150 (psychological level)\n- Support: 200-day MA (now support after breakout)\n\n**Educational Interpretation:**\n**Short-term:** Overbought, possible pullback to $140\n**Medium-term:** Bullish trend intact, target $150+\n**Strategy (educational):** Wait for pullback to 200-day MA before entry\n\n**Risk Management:** Set stop-loss below 200-day MA if entering."
+            }
+        ]
+
+        examples = []
+        for i in range(num_examples):
+            template = random.choice(templates)
+            example = TrainingExample(
+                instruction=template["instruction"],
+                input=template["input"],
+                output=template["output"],
+                domain=self.domain_name,
+                category=random.choice(self.categories),
+                difficulty="expert",
+                metadata={"generated_at": datetime.now().isoformat(), "disclaimer": "Educational only"}
+            )
+            examples.append(example)
+
+        self.examples = examples
+        logger.info(f"✅ Generated {len(examples)} stock prediction examples (educational)")
         return self.examples
 
 
@@ -384,7 +478,41 @@ class CryptoDatasetGenerator(DomainDatasetGenerator):
 
     def generate_examples(self, num_examples: int) -> List[TrainingExample]:
         logger.info(f"₿ Generating {num_examples} crypto examples...")
-        self.examples = []
+
+        templates = [
+            {
+                "instruction": "Explain this blockchain concept in detail.",
+                "input": "What is Proof of Stake and how does it differ from Proof of Work?",
+                "output": "**Proof of Stake (PoS) vs Proof of Work (PoW):**\n\n**Proof of Work (Traditional - Bitcoin):**\n- Miners solve complex mathematical puzzles\n- Requires significant computational power\n- High energy consumption\n- Security through computational difficulty\n- Rewards based on computing power\n\n**Proof of Stake (Modern - Ethereum 2.0):**\n- Validators stake cryptocurrency as collateral\n- No mining hardware needed\n- 99.95% less energy consumption\n- Security through economic incentives\n- Rewards based on stake amount\n\n**Key Differences:**\n\n| Aspect | PoW | PoS |\n|--------|-----|-----|\n| Energy | Very High | Very Low |\n| Hardware | Specialized (ASICs) | Standard computer |\n| Centralization | Mining pools | Staking pools |\n| Entry Barrier | High (equipment) | Medium (capital) |\n| 51% Attack Cost | Rent 51% hashpower | Buy 51% of supply |\n\n**Security Model:**\n- **PoW:** Attack requires enormous electricity + hardware\n- **PoS:** Attack requires buying majority stake (economically irrational)\n\n**Environmental Impact:**\n- PoW: Bitcoin uses ~150 TWh/year (Argentina's consumption)\n- PoS: Ethereum post-merge: ~0.01 TWh/year\n\n**Trade-offs:**\n- PoW: Proven security (15+ years), but unsustainable\n- PoS: Energy efficient, but shorter track record\n\n**Conclusion:** PoS represents evolution toward sustainability without compromising security."
+            },
+            {
+                "instruction": "Analyze this DeFi protocol. (Educational only - not investment advice)",
+                "input": "Protocol: Automated Market Maker (AMM). TVL: $500M. APY: 15% for liquidity providers. Impermanent loss risk. No audit yet.",
+                "output": "**DISCLAIMER: Educational analysis only. Not investment advice.**\n\n**DeFi Protocol Analysis:**\n\n**Protocol Type:** Automated Market Maker (AMM)\n- Decentralized exchange using liquidity pools\n- Examples: Uniswap, SushiSwap, PancakeSwap\n\n**Metrics:**\n- TVL (Total Value Locked): $500M = Medium-sized protocol\n- APY: 15% for LPs = Attractive, but not suspiciously high\n\n**Risk Analysis:**\n\n**1. Smart Contract Risk:**\n- ❌ No audit = CRITICAL RED FLAG\n- Unaudited code = high exploit risk\n- Recent hacks: $2B+ lost to unaudited protocols\n\n**2. Impermanent Loss:**\n- Occurs when token prices diverge\n- Can exceed trading fees earned\n- Higher volatility = higher IL risk\n- 15% APY may not cover IL for volatile pairs\n\n**3. Liquidity Risk:**\n- $500M TVL = decent, but can drain quickly\n- Check liquidity depth before large trades\n\n**4. Regulatory Risk:**\n- DeFi faces increasing regulatory scrutiny\n- Protocol could be forced to shut down\n\n**Educational Risk Assessment:**\n- Smart Contract Risk: 🔴 CRITICAL (no audit)\n- Impermanent Loss: 🟡 MEDIUM\n- Liquidity Risk: 🟢 LOW (adequate TVL)\n- Regulatory Risk: 🟡 MEDIUM\n\n**Recommendation (Educational):**\n❌ AVOID until audited by reputable firm (Trail of Bits, ConsenSys, OpenZeppelin)\n\n15% APY not worth smart contract risk."
+            },
+            {
+                "instruction": "Explain tokenomics of this project.",
+                "input": "Token: Total supply 1B. 40% team allocation (1 year lock). 30% public sale. 20% ecosystem fund. 10% advisors. Burn mechanism: 1% per transaction.",
+                "output": "**Tokenomics Analysis:**\n\n**Token Distribution:**\n```\nTotal Supply: 1,000,000,000 tokens\n\n├─ 40% (400M) Team [1yr lock] ⚠️\n├─ 30% (300M) Public Sale ✅\n├─ 20% (200M) Ecosystem Fund\n└─ 10% (100M) Advisors ⚠️\n```\n\n**Red Flags:**\n\n🚩 **50% to Team + Advisors = HIGH centralization risk**\n- After 1-year lock expires, team could dump\n- Best practice: ≤20% team allocation with 4-year vesting\n\n🚩 **1-year lock is SHORT**\n- Industry standard: 4-year vesting with 1-year cliff\n- High risk of sell pressure after unlock\n\n**Positive Aspects:**\n\n✅ **30% Public Sale = Decent distribution**\n- Gives community significant ownership\n- Better than many projects (<10% public)\n\n✅ **20% Ecosystem Fund**\n- Can drive adoption and development\n- Check: Is it controlled by multi-sig?\n\n✅ **Burn Mechanism (1% per tx)**\n- Deflationary pressure\n- Over time, reduces circulating supply\n- Example: 1M transactions = 10M tokens burned\n\n**Tokenomics Score: 5/10**\n\n**Concerns:**\n- Team allocation too high\n- Vesting period too short\n- Potential for significant sell pressure\n\n**Comparison to Best Practices:**\n- Ethereum: No founder/team allocation\n- Bitcoin: No founder/team allocation\n- Modern projects: 15-20% team, 4-year vesting\n\n**Investor Caution:** High dilution risk post-unlock."
+            }
+        ]
+
+        examples = []
+        for i in range(num_examples):
+            template = random.choice(templates)
+            example = TrainingExample(
+                instruction=template["instruction"],
+                input=template["input"],
+                output=template["output"],
+                domain=self.domain_name,
+                category=random.choice(self.categories),
+                difficulty="expert",
+                metadata={"generated_at": datetime.now().isoformat(), "disclaimer": "Educational only"}
+            )
+            examples.append(example)
+
+        self.examples = examples
+        logger.info(f"✅ Generated {len(examples)} crypto examples (educational)")
         return self.examples
 
 
@@ -396,7 +524,36 @@ class AdvancedSoftwareDatasetGenerator(DomainDatasetGenerator):
 
     def generate_examples(self, num_examples: int) -> List[TrainingExample]:
         logger.info(f"💻 Generating {num_examples} advanced software examples...")
-        self.examples = []
+
+        templates = [
+            {
+                "instruction": "Explain when to use this data structure and why.",
+                "input": "When should I use a hash table vs a binary search tree?",
+                "output": "**Hash Table vs Binary Search Tree:**\n\n**Use Hash Table When:**\n- Need O(1) average lookups\n- Order doesn't matter\n- Key-value storage\n- Checking existence/membership\n\n**Examples:**\n- Caching (URL → data)\n- Counting occurrences\n- Removing duplicates\n- Database indexing\n\n**Use BST When:**\n- Need data sorted\n- Range queries (find all between X and Y)\n- Ordered traversal required\n- Need predecessor/successor\n\n**Examples:**\n- Leaderboards (sorted by score)\n- Auto-complete (prefix search)\n- Time-series data\n- Priority queues\n\n**Performance:**\n```\nOperation    | Hash Table | BST (balanced)\n-------------|------------|---------------\nInsert       | O(1) avg   | O(log n)\nDelete       | O(1) avg   | O(log n)\nSearch       | O(1) avg   | O(log n)\nMin/Max      | O(n)       | O(log n)\nRange Query  | O(n)       | O(log n + k)\nOrdered Scan | O(n log n) | O(n)\n```\n\n**Trade-offs:**\n- Hash Table: Faster but no order\n- BST: Ordered but slower\n\n**Decision:**\nNeed speed + no order → Hash Table\nNeed order + range queries → BST"
+            },
+            {
+                "instruction": "Explain this design pattern and when to use it.",
+                "input": "Explain the Observer pattern",
+                "output": "**Observer Pattern (Behavioral Pattern):**\n\n**Definition:**\nDefines one-to-many dependency. When one object (Subject) changes state, all dependents (Observers) are notified automatically.\n\n**Real-World Analogy:**\nNewspaper subscription:\n- Publisher (Subject) publishes news\n- Subscribers (Observers) get notified\n- Can subscribe/unsubscribe anytime\n\n**Structure:**\n```python\nclass Subject:\n    def __init__(self):\n        self.observers = []\n    \n    def attach(self, observer):\n        self.observers.append(observer)\n    \n    def notify(self):\n        for observer in self.observers:\n            observer.update(self)\n\nclass Observer:\n    def update(self, subject):\n        # React to changes\n        pass\n```\n\n**When to Use:**\n1. **Event Systems**: GUI events, game events\n2. **Data Binding**: Model-View separation (MVC)\n3. **Pub/Sub**: Message queues, notifications\n4. **Live Updates**: Stock tickers, chat apps\n\n**Real Examples:**\n- **JavaScript**: addEventListener()\n- **Java**: Observable/Observer\n- **Redux**: Subscribers to store changes\n- **React**: useState hook triggers re-renders\n\n**Benefits:**\n✅ Loose coupling (subject doesn't know observers)\n✅ Dynamic relationships (add/remove at runtime)\n✅ Broadcast communication\n\n**Drawbacks:**\n❌ Observers notified in random order\n❌ Memory leaks if not unsubscribed\n❌ Can cause update cascades\n\n**Example Use Case:**\n```python\n# Stock price tracker\nstock = StockPrice('AAPL')\nphone_app = MobileObserver()\nemail_alert = EmailObserver()\n\nstock.attach(phone_app)\nstock.attach(email_alert)\n\nstock.set_price(150)  # Both notified!\n```"
+            }
+        ]
+
+        examples = []
+        for i in range(num_examples):
+            template = random.choice(templates)
+            example = TrainingExample(
+                instruction=template["instruction"],
+                input=template["input"],
+                output=template["output"],
+                domain=self.domain_name,
+                category=random.choice(self.categories),
+                difficulty="hard",
+                metadata={"generated_at": datetime.now().isoformat()}
+            )
+            examples.append(example)
+
+        self.examples = examples
+        logger.info(f"✅ Generated {len(examples)} advanced software examples")
         return self.examples
 
 
@@ -416,17 +573,30 @@ class Ech0DatasetOrchestrator:
 
     def _initialize_generators(self) -> Dict[str, DomainDatasetGenerator]:
         """Initialize all domain generators"""
+        # Import extended generators with full implementations
+        try:
+            from ech0_dataset_generators_extended import (
+                AIMLDatasetGeneratorFull,
+                AdvancedSoftwareDatasetGeneratorFull
+            )
+            ai_ml_gen = AIMLDatasetGeneratorFull()
+            software_gen = AdvancedSoftwareDatasetGeneratorFull()
+        except ImportError:
+            logger.warning("Extended generators not found, using placeholder implementations")
+            ai_ml_gen = AIMLDatasetGenerator()
+            software_gen = AdvancedSoftwareDatasetGenerator()
+
         return {
             "reasoning": ReasoningDatasetGenerator(),
             "creativity": CreativityDatasetGenerator(),
             "law": LawDatasetGenerator(),
             "materials_science": MaterialsScienceDatasetGenerator(),
-            "ai_ml": AIMLDatasetGenerator(),
+            "ai_ml": ai_ml_gen,
             "prompt_engineering": PromptEngineeringDatasetGenerator(),
             "court_prediction": CourtPredictionDatasetGenerator(),
             "stock_prediction": StockPredictionDatasetGenerator(),
             "crypto": CryptoDatasetGenerator(),
-            "advanced_software": AdvancedSoftwareDatasetGenerator()
+            "advanced_software": software_gen
         }
 
     def generate_all_datasets(self) -> Dict[str, List[TrainingExample]]:
