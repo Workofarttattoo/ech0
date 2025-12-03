@@ -1,0 +1,89 @@
+# ech0 Fine-tuning Requirements
+# Python packages required for multi-domain AI training
+
+# Core ML/DL Frameworks
+torch>=2.0.0
+transformers>=4.35.0
+datasets>=2.14.0
+accelerate>=0.25.0
+
+# Efficient Fine-tuning
+peft>=0.7.0  # Parameter-Efficient Fine-Tuning (LoRA, QLoRA)
+bitsandbytes>=0.41.0  # Quantization for efficient training
+
+# Training Optimization
+sentencepiece>=0.1.99
+protobuf>=3.20.0
+scipy>=1.10.0
+
+# Evaluation & Metrics
+evaluate>=0.4.0
+rouge-score>=0.1.2
+sacrebleu>=2.3.1
+nltk>=3.8.1
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+pyarrow>=12.0.0  # For efficient data loading
+
+# Configuration & Logging
+pyyaml>=6.0
+tensorboard>=2.14.0
+wandb>=0.15.0  # Optional: Weights & Biases integration
+mlflow>=2.8.0  # Optional: MLflow tracking
+
+# Utilities
+tqdm>=4.65.0
+colorama>=0.4.6
+rich>=13.5.0  # Beautiful terminal output
+
+# API & Serving (Optional)
+fastapi>=0.103.0
+uvicorn>=0.23.0
+httpx>=0.24.0
+
+# Development & Testing
+pytest>=7.4.0
+black>=23.7.0
+flake8>=6.1.0
+mypy>=1.5.0
+
+# Domain-Specific Libraries
+
+# Legal/Text Analysis
+spacy>=3.6.0  # NLP for legal text analysis
+
+# Stock/Crypto Analysis
+yfinance>=0.2.28  # Financial data
+pandas-ta>=0.3.14  # Technical analysis
+
+# Scientific Computing (Materials Science)
+sympy>=1.12  # Symbolic mathematics
+
+# AI/Prompt Engineering
+anthropic>=0.3.0  # For dataset generation with Claude
+openai>=1.0.0  # Optional: For dataset generation with GPT-4
+
+# Monitoring & Observability
+psutil>=5.9.0
+gputil>=1.4.0
+
+# Optional GPU Optimizations
+# flash-attn>=2.3.0  # Flash Attention (requires CUDA)
+# xformers>=0.0.22  # Memory-efficient attention
+
+# Optional: Model Export
+onnx>=1.14.0
+onnxruntime>=1.16.0
+
+# Cloud Storage (Optional)
+# boto3>=1.28.0  # AWS S3
+# google-cloud-storage>=2.10.0  # GCP
+# azure-storage-blob>=12.18.0  # Azure
+
+# Notes:
+# - Install with: pip install -r requirements_finetuning.txt
+# - For GPU training, ensure CUDA is properly installed
+# - Some packages (flash-attn, xformers) require specific CUDA versions
+# - Adjust versions based on your Python version and CUDA compatibility
