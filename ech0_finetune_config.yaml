@@ -73,7 +73,7 @@ domains:
   reasoning:
     enabled: true
     weight: 1.5  # Higher weight = more samples in training
-    max_samples: 5500
+    max_samples: 71000
     categories:
       - logical_reasoning
       - mathematical_reasoning
@@ -85,7 +85,7 @@ domains:
   creativity:
     enabled: true
     weight: 1.2
-    max_samples: 4400
+    max_samples: 49000
     categories:
       - artistic_expression
       - poetry_generation
@@ -98,7 +98,7 @@ domains:
   law:
     enabled: true
     weight: 1.0
-    max_samples: 6600
+    max_samples: 64000
     categories:
       - case_law_analysis
       - statutory_interpretation
@@ -112,7 +112,7 @@ domains:
   materials_science:
     enabled: true
     weight: 0.8
-    max_samples: 3300
+    max_samples: 21000
     categories:
       - material_properties
       - crystallography
@@ -126,7 +126,7 @@ domains:
   ai_ml:
     enabled: true
     weight: 1.3
-    max_samples: 8250
+    max_samples: 159000
     categories:
       - machine_learning_theory
       - deep_learning_architectures
@@ -140,7 +140,7 @@ domains:
   prompt_engineering:
     enabled: true
     weight: 1.4
-    max_samples: 5500
+    max_samples: 106000
     categories:
       - prompt_optimization
       - chain_of_thought_prompting
@@ -153,7 +153,7 @@ domains:
   court_prediction:
     enabled: true
     weight: 1.0
-    max_samples: 4400
+    max_samples: 85000
     categories:
       - evidence_analysis
       - case_outcome_prediction
@@ -166,7 +166,7 @@ domains:
   stock_prediction:
     enabled: true
     weight: 0.9
-    max_samples: 6600
+    max_samples: 127000
     categories:
       - fundamental_analysis
       - technical_analysis
@@ -181,7 +181,7 @@ domains:
   crypto:
     enabled: true
     weight: 0.9
-    max_samples: 5500
+    max_samples: 106000
     categories:
       - blockchain_fundamentals
       - cryptocurrency_analysis
@@ -196,7 +196,7 @@ domains:
   advanced_software:
     enabled: true
     weight: 1.5
-    max_samples: 11000
+    max_samples: 212000
     categories:
       - software_architecture
       - design_patterns
