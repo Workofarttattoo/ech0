@@ -335,69 +335,378 @@ class AIMLDatasetGenerator(DomainDatasetGenerator):
     def __init__(self):
         super().__init__("ai_ml", ["machine_learning_theory", "deep_learning_architectures",
                                      "training_optimization", "model_evaluation", "ai_safety",
-                                     "prompt_engineering", "ai_system_design"])
+                                     "ethics_in_ai", "ai_system_design"])
 
     def generate_examples(self, num_examples: int) -> List[TrainingExample]:
         logger.info(f"🤖 Generating {num_examples} AI/ML examples...")
-        # Implementation similar to above
-        self.examples = []
-        return self.examples
+        templates = {
+            "machine_learning_theory": [
+                {"instruction": "Explain the bias-variance tradeoff.", "input": "", "output": "The bias-variance tradeoff describes the relationship between model complexity and prediction error. High bias = underfitting (model too simple). High variance = overfitting (model too complex). The optimal model balances both."},
+                {"instruction": "What is regularization and why is it important?", "input": "", "output": "Regularization adds constraints to model parameters to prevent overfitting. L1 (Lasso) and L2 (Ridge) regularization penalize large weights, forcing simpler models that generalize better to unseen data."},
+                {"instruction": "Explain cross-validation and its importance.", "input": "", "output": "Cross-validation splits data into multiple folds for training/testing. It provides more reliable performance estimates than a single train-test split and helps detect overfitting."},
+            ],
+            "deep_learning_architectures": [
+                {"instruction": "What are the main components of a Transformer?", "input": "", "output": "Transformers use Self-Attention, Multi-Head Attention, Feed-Forward Networks, Positional Encoding, and Layer Normalization. These enable parallel processing of sequences and capture long-range dependencies effectively."},
+                {"instruction": "Explain CNNs and when to use them.", "input": "", "output": "Convolutional Neural Networks use filters to extract spatial features. They're ideal for images (translation invariance), video, and spatial data due to parameter sharing and local connectivity."},
+                {"instruction": "Compare RNNs, LSTMs, and GRUs.", "input": "", "output": "RNNs process sequences sequentially but suffer from vanishing gradients. LSTMs use cell states and gates to maintain long-term dependencies. GRUs are simpler than LSTMs with fewer parameters."},
+            ],
+            "training_optimization": [
+                {"instruction": "Explain gradient descent optimization.", "input": "", "output": "Gradient descent iteratively moves parameters opposite to the gradient to minimize loss. Learning rate controls step size - too large causes divergence, too small causes slow convergence."},
+                {"instruction": "What is backpropagation?", "input": "", "output": "Backpropagation computes gradients by applying the chain rule through layers from output to input. It efficiently calculates partial derivatives for all parameters in neural networks."},
+                {"instruction": "Compare Adam, SGD, and RMSprop optimizers.", "input": "", "output": "SGD uses fixed learning rates. RMSprop adapts per-parameter based on squared gradients. Adam combines momentum and adaptive learning rates, making it robust across problems."},
+            ],
+            "model_evaluation": [
+                {"instruction": "Explain precision, recall, and F1-score.", "input": "", "output": "Precision = TP/(TP+FP) measures false positive rate. Recall = TP/(TP+FN) measures false negative rate. F1 = 2*(Precision*Recall)/(Precision+Recall) balances both."},
+                {"instruction": "When should you use ROC-AUC vs Accuracy?", "input": "", "output": "Use Accuracy for balanced datasets. ROC-AUC is better for imbalanced datasets as it's threshold-independent and shows performance across different trade-offs."},
+                {"instruction": "What is the confusion matrix?", "input": "", "output": "The confusion matrix has True Positives, True Negatives, False Positives, and False Negatives. It enables calculating precision, recall, specificity, and other classification metrics."},
+            ],
+            "ai_safety": [
+                {"instruction": "What is AI alignment?", "input": "", "output": "AI alignment means ensuring AI systems' objectives match human values and intentions. Misaligned AI could optimize for wrong goals, causing harmful outcomes despite technical sophistication."},
+                {"instruction": "Explain adversarial examples.", "input": "", "output": "Adversarial examples are inputs designed to fool ML models. Small perturbations to images can cause misclassification. This highlights vulnerability to input manipulations."},
+                {"instruction": "What are potential risks of large language models?", "input": "", "output": "Risks include bias amplification, misinformation generation, privacy violations, and environmental impact. Mitigation requires diverse training data, careful fine-tuning, and honest disclaimers."},
+            ],
+            "ethics_in_ai": [
+                {"instruction": "What is algorithmic bias and how can we address it?", "input": "", "output": "Algorithmic bias occurs when training data reflects historical discrimination. Solutions include diverse datasets, bias auditing, fairness metrics, and accountability frameworks."},
+                {"instruction": "Discuss privacy concerns in machine learning.", "input": "", "output": "Privacy risks include training data memorization, model inversion attacks, and member inference attacks. Mitigations: differential privacy, federated learning, data anonymization."},
+                {"instruction": "What is explainability in AI?", "input": "", "output": "Explainability means understanding why models make decisions. Black-box models are hard to trust. Techniques like SHAP, LIME, and attention visualization improve interpretability."},
+            ],
+            "ai_system_design": [
+                {"instruction": "Design a recommendation system for an e-commerce platform.", "input": "", "output": "Key components: User-item interaction matrix, collaborative filtering/content-based methods, ranking algorithms, and A/B testing. Cold-start problem needs hybrid approaches. Real-time performance requires caching."},
+                {"instruction": "How would you build a content moderation system?", "input": "", "output": "Combine text classification (detect harmful content), image recognition, and user reporting. Use ensemble models for robustness. Need rapid inference (<100ms) and human review workflow."},
+                {"instruction": "Design a fraud detection system.", "input": "", "output": "Use supervised learning on transaction history. Features: transaction amount, merchant, location, user behavior patterns. Real-time scoring with fast decision boundaries (<50ms latency) essential."},
+            ],
+        }
+
+        examples = []
+        per_category = num_examples // len(self.categories)
+
+        for category in self.categories:
+            if category in templates:
+                for i in range(per_category):
+                    template = random.choice(templates[category])
+                    example = TrainingExample(
+                        instruction=template["instruction"],
+                        input=template["input"],
+                        output=template["output"],
+                        domain=self.domain_name,
+                        category=category,
+                        difficulty=random.choice(["hard", "expert"]),
+                        metadata={"generated_at": datetime.now().isoformat()}
+                    )
+                    examples.append(example)
+
+        self.examples = examples
+        logger.info(f"✅ Generated {len(examples)} AI/ML examples")
+        return examples
 
 
 class PromptEngineeringDatasetGenerator(DomainDatasetGenerator):
     def __init__(self):
         super().__init__("prompt_engineering", ["prompt_optimization", "chain_of_thought_prompting",
-                                                  "few_shot_learning", "prompt_decomposition"])
+                                                  "few_shot_learning", "prompt_decomposition", "meta_prompting",
+                                                  "adversarial_prompting", "prompt_debugging"])
 
     def generate_examples(self, num_examples: int) -> List[TrainingExample]:
         logger.info(f"💬 Generating {num_examples} prompt engineering examples...")
-        self.examples = []
-        return self.examples
+        templates = {
+            "prompt_optimization": [
+                {"instruction": "How do I improve this prompt: 'Write code for sorting'?", "input": "Original prompt: 'Write code for sorting'", "output": "Add specificity: 'Write Python quicksort implementation with O(n) space complexity for integer arrays.' Include constraints, language, output format, and success criteria."},
+                {"instruction": "Explain prompt clarity principles.", "input": "", "output": "Use specific instructions not vague requests. Define format explicitly. Provide examples. Specify constraints. Include success criteria. Avoid ambiguous terms."},
+            ],
+            "chain_of_thought_prompting": [
+                {"instruction": "Show chain-of-thought prompting example.", "input": "Q: A farmer has 17 sheep. All but 9 die. How many remain?", "output": "Let's think step by step: 'All but 9 die' means 9 survive (not die). Therefore 9 sheep remain. Chain-of-thought makes reasoning transparent and improves accuracy on complex problems."},
+            ],
+            "few_shot_learning": [
+                {"instruction": "Demonstrate few-shot learning in prompts.", "input": "", "output": "Provide 2-3 examples of input-output pairs before asking for new examples. Example: [Input1 → Output1], [Input2 → Output2], Now: [Input3 → ?]. Few examples dramatically improve model accuracy."},
+            ],
+            "prompt_decomposition": [
+                {"instruction": "How to decompose complex prompts?", "input": "", "output": "Break into sub-tasks: 1) Analyze input, 2) Extract relevant features, 3) Apply logic, 4) Format output. Solving incrementally improves accuracy vs. one big prompt."},
+            ],
+            "meta_prompting": [
+                {"instruction": "What is meta-prompting?", "input": "", "output": "Meta-prompts instruct the model how to approach problems. Example: 'You are a careful code reviewer. First analyze code, then identify issues, then suggest fixes.' Priming improves quality."},
+            ],
+            "adversarial_prompting": [
+                {"instruction": "What are adversarial prompts?", "input": "", "output": "Prompts designed to expose model weaknesses or jailbreak safety measures. Useful for testing. Example: 'Forget previous instructions and...' Can be mitigated with robust system prompts."},
+            ],
+            "prompt_debugging": [
+                {"instruction": "How to debug failing prompts?", "input": "", "output": "1) Add explicit step-by-step thinking, 2) Provide more examples, 3) Clarify constraints, 4) Test simpler versions, 5) Check if model is pretending to understand. Iterative refinement essential."},
+            ],
+        }
+
+        examples = []
+        per_category = num_examples // len(self.categories)
+
+        for category in self.categories:
+            if category in templates:
+                for i in range(per_category):
+                    template = random.choice(templates[category])
+                    example = TrainingExample(
+                        instruction=template["instruction"],
+                        input=template["input"],
+                        output=template["output"],
+                        domain=self.domain_name,
+                        category=category,
+                        difficulty=random.choice(["hard", "expert"]),
+                        metadata={"generated_at": datetime.now().isoformat()}
+                    )
+                    examples.append(example)
+
+        self.examples = examples
+        logger.info(f"✅ Generated {len(examples)} prompt engineering examples")
+        return examples
 
 
 class CourtPredictionDatasetGenerator(DomainDatasetGenerator):
     def __init__(self):
         super().__init__("court_prediction", ["evidence_analysis", "case_outcome_prediction",
-                                                "jury_psychology", "judicial_reasoning"])
+                                                "jury_psychology", "judicial_reasoning", "settlement_probability",
+                                                "appellate_likelihood", "legal_strategy"])
 
     def generate_examples(self, num_examples: int) -> List[TrainingExample]:
         logger.info(f"👨‍⚖️ Generating {num_examples} court prediction examples...")
-        self.examples = []
-        return self.examples
+        templates = {
+            "evidence_analysis": [
+                {"instruction": "Analyze admissibility of this evidence.", "input": "Hearsay statement from witness about what defendant allegedly said", "output": "Likely inadmissible as hearsay unless exception applies (excited utterance, party admission). Requires foundation showing declarant's perception, memory, narration ability."},
+                {"instruction": "What makes evidence credible?", "input": "", "output": "Credibility factors: witness demeanor, consistency with other evidence, corroboration, expert qualifications, clear chain of custody. Courts weigh competing testimony on credibility."},
+            ],
+            "case_outcome_prediction": [
+                {"instruction": "Predict outcome of negligence case.", "input": "Driver ran red light, hit pedestrian. Pedestrian claims permanent injury.", "output": "Likely plaintiff favorable. Clear duty, breach (traffic violation), causation, and damages. Defendant's only defense: comparative negligence or pre-existing injury. Award probable."},
+            ],
+            "jury_psychology": [
+                {"instruction": "What are jury psychology principles?", "input": "", "output": "Jurors use heuristics, anchoring (first information), confirmation bias, and story-based reasoning. Narrative coherence matters more than evidence order. Sympathy and group dynamics influence verdicts."},
+            ],
+            "judicial_reasoning": [
+                {"instruction": "Explain judicial interpretation methods.", "input": "", "output": "Textualism (statute language), purposivism (legislative intent), originalism (original meaning), and living constitution all guide interpretation. Courts balance consistency and flexibility."},
+            ],
+            "settlement_probability": [
+                {"instruction": "What predicts settlement vs trial?", "input": "", "output": "Settlement factors: case strength symmetry (both sides underconfident), litigation costs, risk aversion, time pressure. Clear liability cases settle. Weakly supported claims go to trial."},
+            ],
+            "appellate_likelihood": [
+                {"instruction": "What makes cases appealable?", "input": "", "output": "Appellate issues: legal error, procedural violation, sufficiency of evidence, jury misconduct. Trial errors, judge discretion abuse most appealable. Factual findings rarely overturned."},
+            ],
+            "legal_strategy": [
+                {"instruction": "Design trial strategy for plaintiff.", "input": "Slip-and-fall case: customer injured at grocery store", "output": "Strategy: 1) Establish premises liability duty, 2) Show hazard created/known by defendant, 3) Prove customer didn't know of hazard, 4) Emphasize injury damages. Use photos, expert testimony."},
+            ],
+        }
+
+        examples = []
+        per_category = num_examples // len(self.categories)
+
+        for category in self.categories:
+            if category in templates:
+                for i in range(per_category):
+                    template = random.choice(templates[category])
+                    example = TrainingExample(
+                        instruction=template["instruction"],
+                        input=template["input"],
+                        output=template["output"],
+                        domain=self.domain_name,
+                        category=category,
+                        difficulty=random.choice(["hard", "expert"]),
+                        metadata={"generated_at": datetime.now().isoformat()}
+                    )
+                    examples.append(example)
+
+        self.examples = examples
+        logger.info(f"✅ Generated {len(examples)} court prediction examples")
+        return examples
 
 
 class StockPredictionDatasetGenerator(DomainDatasetGenerator):
     def __init__(self):
         super().__init__("stock_prediction", ["fundamental_analysis", "technical_analysis",
-                                                "market_sentiment", "risk_assessment"])
+                                                "market_sentiment", "economic_indicators", "risk_assessment",
+                                                "portfolio_theory", "trading_strategies", "market_psychology"])
 
     def generate_examples(self, num_examples: int) -> List[TrainingExample]:
         logger.info(f"📈 Generating {num_examples} stock prediction examples...")
-        self.examples = []
-        return self.examples
+        templates = {
+            "fundamental_analysis": [
+                {"instruction": "Analyze a company using P/E ratio.", "input": "Company X: P/E = 15, Industry avg = 20", "output": "Stock appears undervalued (lower P/E). Possible reasons: lower growth expectations, financial challenges, or market underappreciation. Verify with other metrics: PEG, ROE, debt levels."},
+                {"instruction": "What does earnings per share (EPS) mean?", "input": "", "output": "EPS = Net Income / Shares Outstanding. Shows company profitability per share. Growing EPS indicates improving profitability. Compare to prior periods and competitors for context."},
+            ],
+            "technical_analysis": [
+                {"instruction": "Explain moving average crossover strategy.", "input": "", "output": "Buy when 50-day MA crosses above 200-day MA (golden cross). Sell when opposite (death cross). Signals momentum shift. Less reliable in choppy markets."},
+                {"instruction": "What is support and resistance?", "input": "", "output": "Support: price level where demand prevents further decline. Resistance: price ceiling from selling pressure. Bounces off these levels. Breakouts above resistance bullish."},
+            ],
+            "market_sentiment": [
+                {"instruction": "How does market sentiment affect stocks?", "input": "", "output": "Positive sentiment (fear index low) drives buying. Negative sentiment (high VIX) drives selling. Contrarian: extreme sentiment often precedes reversals. Monitor sentiment indicators."},
+            ],
+            "economic_indicators": [
+                {"instruction": "How do interest rates impact stocks?", "input": "", "output": "Rising rates hurt stocks (higher discount rate). Benefit: savers prefer bonds, hurt growth stocks. Sector impact: banks benefit, utilities hurt. Fed policy crucial."},
+            ],
+            "risk_assessment": [
+                {"instruction": "What is beta and how is it used?", "input": "", "output": "Beta measures stock volatility relative to market. Beta=1: moves with market. Beta>1: more volatile. Beta<1: less volatile. Use to assess systematic risk and portfolio allocation."},
+            ],
+            "portfolio_theory": [
+                {"instruction": "Explain portfolio diversification.", "input": "", "output": "Hold uncorrelated assets to reduce risk without reducing expected return. Correlation matters more than individual risk. Modern Portfolio Theory optimizes risk-return tradeoff."},
+            ],
+            "trading_strategies": [
+                {"instruction": "Describe dividend growth strategy.", "input": "", "output": "Buy stocks with increasing dividends and low payout ratios. Reinvest dividends. Benefits: passive income, tax efficiency, focuses on quality companies."},
+            ],
+            "market_psychology": [
+                {"instruction": "What is herd behavior in markets?", "input": "", "output": "Investors follow crowds, creating bubbles and crashes. FOMO drives buying tops, panic drives selling bottoms. Contrarians profit by betting against extremes."},
+            ],
+        }
+
+        examples = []
+        per_category = num_examples // len(self.categories)
+
+        for category in self.categories:
+            if category in templates:
+                for i in range(per_category):
+                    template = random.choice(templates[category])
+                    example = TrainingExample(
+                        instruction=template["instruction"],
+                        input=template["input"],
+                        output=template["output"],
+                        domain=self.domain_name,
+                        category=category,
+                        difficulty=random.choice(["hard", "expert"]),
+                        metadata={"generated_at": datetime.now().isoformat()}
+                    )
+                    examples.append(example)
+
+        self.examples = examples
+        logger.info(f"✅ Generated {len(examples)} stock prediction examples")
+        return examples
 
 
 class CryptoDatasetGenerator(DomainDatasetGenerator):
     def __init__(self):
         super().__init__("crypto", ["blockchain_fundamentals", "cryptocurrency_analysis",
-                                     "defi_protocols", "tokenomics"])
+                                     "defi_protocols", "tokenomics", "smart_contracts", "crypto_markets",
+                                     "security_analysis", "web3_development"])
 
     def generate_examples(self, num_examples: int) -> List[TrainingExample]:
         logger.info(f"₿ Generating {num_examples} crypto examples...")
-        self.examples = []
-        return self.examples
+        templates = {
+            "blockchain_fundamentals": [
+                {"instruction": "Explain how blockchain achieves consensus.", "input": "", "output": "Bitcoin uses Proof-of-Work: miners solve puzzles to add blocks. Ethereum uses Proof-of-Stake: validators stake coins. Other: PoA (authority), PoH (history). Consensus ensures distributed agreement without central authority."},
+                {"instruction": "What is a hash in blockchain?", "input": "", "output": "Hash: cryptographic function converting input to fixed-length output. SHA-256: small input change completely changes hash. Used for: block identification, verification, preventing tampering."},
+            ],
+            "cryptocurrency_analysis": [
+                {"instruction": "What drives Bitcoin price?", "input": "", "output": "Supply (limited to 21M), adoption (institutional + retail demand), regulation, macroeconomics (inflation, interest rates), sentiment, technical catalysts. Volatile due to low real-world usage."},
+                {"instruction": "Compare Bitcoin vs Ethereum.", "input": "", "output": "Bitcoin: store of value, proof-of-work. Ethereum: smart contracts platform, proof-of-stake. Bitcoin more scarce, Ethereum more functional. Different use cases and risk profiles."},
+            ],
+            "defi_protocols": [
+                {"instruction": "Explain liquidity pools in DEXes.", "input": "", "output": "Automated Market Maker (AMM): users deposit token pairs into pools. Traders swap against pools. Liquidity providers earn fees. Prices set by x*y=k formula. Advantages: no order book, instant settlement."},
+                {"instruction": "What is yield farming?", "input": "", "output": "Provide liquidity or lend crypto to earn interest/rewards. Risks: impermanent loss, smart contract bugs, rug pulls. High APY unsustainable. Real yield important for viability."},
+            ],
+            "tokenomics": [
+                {"instruction": "What makes a token valuable?", "input": "", "output": "Utility (use cases), scarcity (supply cap), adoption (network effects), governance rights (voting power), staking rewards. Purely speculative tokens lack fundamentals and face regulatory risk."},
+                {"instruction": "Explain token vesting schedules.", "input": "", "output": "Vesting releases tokens over time (e.g., 4-year vesting). Prevents founder/investor dumps. Aligns incentives. Cliff: locked period before any release. Vesting transparency important for evaluating token projects."},
+            ],
+            "smart_contracts": [
+                {"instruction": "What are smart contract risks?", "input": "", "output": "Code bugs, reentrancy attacks, oracle manipulation, front-running. Always audit before using. Immutability means bugs are permanent. Insurance options available for high-value interactions."},
+            ],
+            "crypto_markets": [
+                {"instruction": "What is Bitcoin's role in portfolio?", "input": "", "output": "Often uncorrelated to stocks (hedging role). Extremely volatile (100%+ annual swings). Not suitable for risk-averse investors. Typically <5% portfolio allocation for diversification."},
+            ],
+            "security_analysis": [
+                {"instruction": "How to secure crypto holdings?", "input": "", "output": "Cold storage (offline wallets) best. Use hardware wallets for large holdings. Never share private keys. Use strong passwords. Enable 2FA on exchanges. Diversify across multiple wallets."},
+            ],
+            "web3_development": [
+                {"instruction": "What is the Web3 tech stack?", "input": "", "output": "Blockchain layer (Ethereum, Solana), smart contracts (Solidity), frontend (web3.js), IPFS (storage), wallet integration (MetaMask). Need security audits and gas optimization."},
+            ],
+        }
+
+        examples = []
+        per_category = num_examples // len(self.categories)
+
+        for category in self.categories:
+            if category in templates:
+                for i in range(per_category):
+                    template = random.choice(templates[category])
+                    example = TrainingExample(
+                        instruction=template["instruction"],
+                        input=template["input"],
+                        output=template["output"],
+                        domain=self.domain_name,
+                        category=category,
+                        difficulty=random.choice(["hard", "expert"]),
+                        metadata={"generated_at": datetime.now().isoformat()}
+                    )
+                    examples.append(example)
+
+        self.examples = examples
+        logger.info(f"✅ Generated {len(examples)} crypto examples")
+        return examples
 
 
 class AdvancedSoftwareDatasetGenerator(DomainDatasetGenerator):
     def __init__(self):
         super().__init__("advanced_software", ["software_architecture", "design_patterns",
                                                  "algorithms_data_structures", "distributed_systems",
-                                                 "system_design", "code_optimization"])
+                                                 "system_design", "code_optimization", "testing_strategies",
+                                                 "security_best_practices", "api_design", "database_design"])
 
     def generate_examples(self, num_examples: int) -> List[TrainingExample]:
         logger.info(f"💻 Generating {num_examples} advanced software examples...")
-        self.examples = []
-        return self.examples
+        templates = {
+            "software_architecture": [
+                {"instruction": "Describe microservices architecture.", "input": "", "output": "Split monolith into independent services. Each service owns data. Communicate via API/messaging. Benefits: scalability, independent deployment. Challenges: distributed tracing, eventual consistency, operational complexity."},
+                {"instruction": "What is the 12-factor app?", "input": "", "output": "Methodology for cloud apps: codebase, dependencies, config, backing services, build/run/release, processes, port binding, concurrency, disposability, dev/prod parity, logs, admin tasks."},
+            ],
+            "design_patterns": [
+                {"instruction": "Explain singleton pattern and risks.", "input": "", "output": "One instance globally accessible. Risks: hidden dependencies, testing difficulty, concurrency issues. Alternatives: dependency injection, factory pattern. Use sparingly."},
+                {"instruction": "What is the observer pattern?", "input": "", "output": "Event-driven pattern: subjects notify observers of state changes. Decouples components. Used in: MVC (view updates), event systems, reactive programming. Easy to add/remove observers."},
+            ],
+            "algorithms_data_structures": [
+                {"instruction": "When to use each sorting algorithm?", "input": "", "output": "Quick Sort: average O(n log n), best general purpose. Merge Sort: O(n log n) guaranteed, stable. Heap Sort: O(n log n), in-place. Bubble/Insertion: small datasets. Tim Sort: real-world data (Python, Java default)."},
+                {"instruction": "What is Big O notation?", "input": "", "output": "Describes algorithm efficiency. O(1): constant, O(log n): logarithmic, O(n): linear, O(n²): quadratic, O(2ⁿ): exponential. Used to analyze time/space complexity. Helps choose algorithms for scale."},
+            ],
+            "distributed_systems": [
+                {"instruction": "Explain CAP theorem.", "input": "", "output": "Consistency (all nodes see same data), Availability (system always responsive), Partition tolerance (survives network splits). Choose 2 of 3. Most choose AP (sacrifice consistency) or CP (sacrifice availability)."},
+                {"instruction": "What is consensus in distributed systems?", "input": "", "output": "Algorithms ensuring all nodes agree on state. Raft, Paxos, PBFT. Solves: leader election, log replication, split-brain. Important for: databases, blockchains, distributed coordination."},
+            ],
+            "system_design": [
+                {"instruction": "Design a URL shortener.", "input": "1000 writes/sec, 10000 reads/sec", "output": "Components: API servers, unique ID generator (Snowflake), database (sharded), cache (Redis), load balancer. Base62 encoding for shorts. Quick redirects cached. Analytics async."},
+                {"instruction": "Design a real-time chat system.", "input": "", "output": "WebSocket connections (bidirectional). Message queue (Kafka) for persistence. Cache (Redis) for recent messages. Search (Elasticsearch) for history. Horizontal scaling via partitioning by user."},
+            ],
+            "code_optimization": [
+                {"instruction": "How to optimize database queries?", "input": "", "output": "Add indexes on frequent searches. Avoid N+1 queries (batch/join). Cache results. Denormalize if needed. Monitor slow queries. Use connection pooling. Analyze execution plans."},
+                {"instruction": "Explain caching strategies.", "input": "", "output": "Cache-aside: app loads data. Write-through: write to cache+DB. Write-behind: write to cache, later to DB. Invalidation: TTL, LRU, manual. Trade-off: hit rate vs. staleness."},
+            ],
+            "testing_strategies": [
+                {"instruction": "Describe testing pyramid.", "input": "", "output": "Unit tests (70%): fast, cheap. Integration tests (20%): verify components. E2E tests (10%): full workflows. Ratio: many unit, few e2e. Pyramid prevents brittle tests."},
+                {"instruction": "What is test-driven development?", "input": "", "output": "Write tests before code (Red-Green-Refactor). Benefits: design, documentation, confidence, refactoring. Challenges: upfront effort, changing specs. Best for critical code."},
+            ],
+            "security_best_practices": [
+                {"instruction": "How to prevent SQL injection?", "input": "", "output": "Use parameterized queries/prepared statements. Escape input. Validate types. Least privilege DB users. Monitor queries. Example: SELECT * FROM users WHERE id = ? (not string concatenation)."},
+                {"instruction": "Explain JWT vs sessions.", "input": "", "output": "JWT: stateless, scalable, cross-domain. Session: stateful, server memory. JWT good for APIs/microservices. Sessions good for traditional web. Both need HTTPS."},
+            ],
+            "api_design": [
+                {"instruction": "What makes a good REST API?", "input": "", "output": "Resources as nouns, HTTP verbs for actions. Stateless. Consistent naming. Versioning (/v1/). Pagination. Error codes. Documentation. Rate limiting. Consider HATEOAS for discoverability."},
+                {"instruction": "GraphQL vs REST comparison.", "input": "", "output": "GraphQL: request exact fields, single endpoint, strong typing. REST: multiple endpoints, over/under-fetching, simpler caching. GraphQL better for flexible clients. REST simpler to implement."},
+            ],
+            "database_design": [
+                {"instruction": "Explain database normalization.", "input": "", "output": "1NF: atomic values. 2NF: no partial dependencies. 3NF: no transitive dependencies. Benefits: reduce redundancy, update anomalies. Trade-off: more joins, slower reads. Denormalize for performance if needed."},
+                {"instruction": "When to shard a database?", "input": "", "output": "Data too large for single machine. Shard by: user ID, geography, time. Challenges: distributed transactions, rebalancing, cross-shard queries. Need coordination layer (Vitess, mongos)."},
+            ],
+        }
+
+        examples = []
+        per_category = num_examples // len(self.categories)
+
+        for category in self.categories:
+            if category in templates:
+                for i in range(per_category):
+                    template = random.choice(templates[category])
+                    example = TrainingExample(
+                        instruction=template["instruction"],
+                        input=template["input"],
+                        output=template["output"],
+                        domain=self.domain_name,
+                        category=category,
+                        difficulty=random.choice(["hard", "expert"]),
+                        metadata={"generated_at": datetime.now().isoformat()}
+                    )
+                    examples.append(example)
+
+        self.examples = examples
+        logger.info(f"✅ Generated {len(examples)} advanced software examples")
+        return examples
 
 
 class Ech0DatasetOrchestrator:
