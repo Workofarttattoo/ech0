@@ -56,7 +56,7 @@ class Ech0TrainingConfig:
     """Configuration for ech0 fine-tuning"""
 
     # Model configuration
-    base_model: str = "meta-llama/Llama-2-7b-hf"  # Fallback to open model
+    base_model: str = "mistralai/Mistral-7B-Instruct-v0.2"  # Open model, no authentication required
     model_max_length: int = 4096
 
     # LoRA configuration
@@ -135,7 +135,7 @@ class Ech0TrainingConfig:
         }
 
         return cls(
-            base_model=model_config.get('base_model', 'meta-llama/Llama-2-7b-hf'),
+            base_model=model_config.get('base_model', 'mistralai/Mistral-7B-Instruct-v0.2'),
             lora_r=lora_config.get('rank', 16),
             lora_alpha=lora_config.get('alpha', 32),
             lora_dropout=lora_config.get('dropout', 0.05),
@@ -194,6 +194,13 @@ class Ech0FinetuneEngine:
             raise ImportError("transformers and peft libraries required")
 
         logger.info(f"🔧 Loading base model: {self.config.base_model}")
+
+        # Check for HuggingFace token (optional for open models)
+        hf_token = os.environ.get('HF_TOKEN')
+        if hf_token:
+            logger.info("🔑 Using HuggingFace token from HF_TOKEN environment variable")
+        else:
+            logger.info("✓ No HF_TOKEN set - using open model without authentication")
 
         # Quantization configuration
         bnb_config = BitsAndBytesConfig(
