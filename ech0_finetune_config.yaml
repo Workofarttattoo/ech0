@@ -8,7 +8,7 @@ system:
 
 # Base Model Configuration
 model:
-  base_model: "ech0-base"  # Your ech0 base model
+  base_model: "Qwen/Qwen2-14B"  # Same architecture as ech0-base, public model
   architecture: "transformer"
   context_length: 200000
 

@@ -56,7 +56,7 @@ class Ech0TrainingConfig:
     """Configuration for ech0 fine-tuning"""
 
     # Model configuration
-    base_model: str = "ech0-base"  # Your ech0 base model
+    base_model: str = "Qwen/Qwen2-14B"  # Same architecture as ech0-base, public model
     model_max_length: int = 4096
 
     # LoRA configuration
@@ -135,7 +135,7 @@ class Ech0TrainingConfig:
         }
 
         return cls(
-            base_model=model_config.get('base_model', 'ech0-base'),
+            base_model=model_config.get('base_model', 'Qwen/Qwen2-14B'),
             lora_r=lora_config.get('rank', 16),
             lora_alpha=lora_config.get('alpha', 32),
             lora_dropout=lora_config.get('dropout', 0.05),
