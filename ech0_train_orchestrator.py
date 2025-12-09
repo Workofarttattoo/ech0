@@ -149,7 +149,20 @@ class Ech0TrainingOrchestrator:
             return model_path
 
         except Exception as e:
-            logger.error(f"❌ Training failed: {e}")
+            error_msg = str(e).lower()
+            if "401" in error_msg or "unauthorized" in error_msg or "token" in error_msg:
+                logger.error(f"❌ Authentication error: {e}")
+                logger.error("\n" + "="*80)
+                logger.error("HuggingFace Token Issue Detected")
+                logger.error("="*80)
+                logger.error("Your HuggingFace token may be expired or invalid.")
+                logger.error("\nTo fix this, run:")
+                logger.error("  python setup_hf_auth.py")
+                logger.error("\nOr manually update your token:")
+                logger.error("  huggingface-cli login")
+                logger.error("="*80 + "\n")
+            else:
+                logger.error(f"❌ Training failed: {e}")
             raise
 
     def evaluate_model(self, test_data: dict):
