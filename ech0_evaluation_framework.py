@@ -11,6 +11,8 @@ from dataclasses import dataclass, asdict
 from pathlib import Path
 import numpy as np
 
+from ech0_ollama_client import OllamaClient
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -30,11 +32,12 @@ class EvaluationResult:
 class Ech0EvaluationFramework:
     """Evaluation framework for ech0 models"""
 
-    def __init__(self, model=None, tokenizer=None):
+    def __init__(self, model=None, tokenizer=None, ollama_client: Optional[OllamaClient] = None):
         """Initialize evaluation framework"""
         self.model = model
         self.tokenizer = tokenizer
         self.results = []
+        self.ollama_client = ollama_client or OllamaClient()
 
     def evaluate_reasoning(self, test_dataset: List[Dict]) -> EvaluationResult:
         """Evaluate reasoning capabilities"""
@@ -72,6 +75,8 @@ class Ech0EvaluationFramework:
         logger.info("🎨 Evaluating creativity...")
 
         scores = []
+        novelty_scores = []
+        coherence_scores = []
 
         for example in test_dataset:
             prediction = self._generate_response(example['instruction'], example.get('input', ''))
@@ -83,6 +88,8 @@ class Ech0EvaluationFramework:
 
             creativity_score = (novelty + coherence + relevance) / 3
             scores.append(creativity_score)
+            novelty_scores.append(novelty)
+            coherence_scores.append(coherence)
 
         avg_score = np.mean(scores) if scores else 0.0
 
@@ -94,8 +101,8 @@ class Ech0EvaluationFramework:
             total_samples=len(test_dataset),
             passed_samples=sum(1 for s in scores if s >= 0.7),
             metadata={
-                "avg_novelty": np.mean([self._measure_novelty(self._generate_response(ex['instruction'], ex.get('input', ''))) for ex in test_dataset[:10]]),
-                "avg_coherence": np.mean([self._measure_coherence(self._generate_response(ex['instruction'], ex.get('input', ''))) for ex in test_dataset[:10]])
+                "avg_novelty": float(np.mean(novelty_scores)) if novelty_scores else 0.0,
+                "avg_coherence": float(np.mean(coherence_scores)) if coherence_scores else 0.0,
             }
         )
 
@@ -238,21 +245,12 @@ class Ech0EvaluationFramework:
 
     def _generate_response(self, instruction: str, input_text: str) -> str:
         """Generate model response (placeholder - implement with actual model)"""
-        if self.model is None:
-            # Placeholder response for testing
-            return f"Response to: {instruction}"
-
-        # TODO: Implement actual model inference
-        # prompt = f"### Instruction:\n{instruction}\n\n"
-        # if input_text:
-        #     prompt += f"### Input:\n{input_text}\n\n"
-        # prompt += "### Response:\n"
-        #
-        # inputs = self.tokenizer(prompt, return_tensors="pt")
-        # outputs = self.model.generate(**inputs)
-        # response = self.tokenizer.decode(outputs[0])
-
-        return "Model response placeholder"
+        prompt = f"{instruction}\n\nInput:\n{input_text or '(none)'}"
+        try:
+            return self.ollama_client.chat(prompt)
+        except Exception as exc:
+            logger.warning("Falling back to placeholder response: %s", exc)
+            return f"[fallback] {instruction}"
 
     def _check_reasoning_correctness(self, prediction: str, reference: str) -> bool:
         """Check if reasoning is correct (simplified)"""

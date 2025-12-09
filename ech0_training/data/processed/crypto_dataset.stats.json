@@ -1,0 +1,10 @@
+{
+  "examples": 3,
+  "avg_tokens": 220.33333333333334,
+  "max_tokens": 223,
+  "skipped_quality": 0,
+  "skipped_tokens": 0,
+  "secret_redactions": 0,
+  "deduplicated": 9997,
+  "input_path": "/Users/noone/ech0/ech0_training/data/raw/crypto_dataset.jsonl"
+}

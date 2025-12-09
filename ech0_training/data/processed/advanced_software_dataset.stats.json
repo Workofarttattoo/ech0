@@ -1,0 +1,10 @@
+{
+  "examples": 2,
+  "avg_tokens": 687.5,
+  "max_tokens": 725,
+  "skipped_quality": 0,
+  "skipped_tokens": 0,
+  "secret_redactions": 0,
+  "deduplicated": 6664,
+  "input_path": "/Users/noone/ech0/ech0_training/data/raw/advanced_software_dataset.jsonl"
+}

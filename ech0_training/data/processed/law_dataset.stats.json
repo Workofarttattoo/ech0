@@ -1,0 +1,10 @@
+{
+  "examples": 3,
+  "avg_tokens": 295.0,
+  "max_tokens": 370,
+  "skipped_quality": 0,
+  "skipped_tokens": 0,
+  "secret_redactions": 0,
+  "deduplicated": 5997,
+  "input_path": "/Users/noone/ech0/ech0_training/data/raw/law_dataset.jsonl"
+}

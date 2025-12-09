@@ -1,0 +1,10 @@
+{
+  "examples": 2,
+  "avg_tokens": 165.5,
+  "max_tokens": 169,
+  "skipped_quality": 0,
+  "skipped_tokens": 0,
+  "secret_redactions": 0,
+  "deduplicated": 11998,
+  "input_path": "/Users/noone/ech0/ech0_training/data/raw/stock_prediction_dataset.jsonl"
+}

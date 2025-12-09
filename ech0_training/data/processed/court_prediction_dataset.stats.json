@@ -1,0 +1,10 @@
+{
+  "examples": 2,
+  "avg_tokens": 139.5,
+  "max_tokens": 149,
+  "skipped_quality": 0,
+  "skipped_tokens": 0,
+  "secret_redactions": 0,
+  "deduplicated": 7998,
+  "input_path": "/Users/noone/ech0/ech0_training/data/raw/court_prediction_dataset.jsonl"
+}

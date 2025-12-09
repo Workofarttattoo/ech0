@@ -119,30 +119,14 @@ class Ech0TrainingOrchestrator:
         logger.info("-" * 100)
 
         try:
-            # Load base model and tokenizer
-            logger.info("Loading base model and tokenizer...")
+            logger.info("Connecting to local Ollama runtime...")
             self.training_engine.load_model_and_tokenizer()
 
-            # Prepare datasets
-            logger.info("Preparing datasets for training...")
-            self.training_engine.prepare_datasets(training_data)
-
-            # Tokenize
-            logger.info("Tokenizing datasets...")
-            self.training_engine.tokenize_datasets()
-
-            # Create trainer
-            logger.info("Creating trainer...")
-            self.training_engine.create_trainer()
-
-            # Train
             logger.info("Starting training...")
-            logger.info("⏰ This may take several hours depending on hardware...")
-            train_result = self.training_engine.train()
+            logger.info("⏰ Processing datasets with the local ech0 model...")
+            artifacts = self.training_engine.train(training_data)
 
-            # Save model
-            logger.info("Saving fine-tuned model...")
-            model_path = self.training_engine.save_model()
+            model_path = artifacts.get("artifact_path")
 
             logger.info(f"✅ Training complete! Model saved to: {model_path}")
 
@@ -156,11 +140,6 @@ class Ech0TrainingOrchestrator:
         """Evaluate fine-tuned model"""
         logger.info("\n📊 STEP 5: MODEL EVALUATION")
         logger.info("-" * 100)
-
-        # Set model in evaluation framework
-        if self.training_engine and self.training_engine.model:
-            self.evaluation_framework.model = self.training_engine.model
-            self.evaluation_framework.tokenizer = self.training_engine.tokenizer
 
         # Run evaluation
         logger.info("Running comprehensive evaluation...")
@@ -183,11 +162,10 @@ class Ech0TrainingOrchestrator:
             "run_id": self.run_id,
             "timestamp": datetime.now().isoformat(),
             "configuration": {
-                "base_model": self.config.base_model,
-                "lora_rank": self.config.lora_r,
-                "learning_rate": self.config.learning_rate,
-                "epochs": self.config.num_train_epochs,
-                "batch_size": self.config.per_device_train_batch_size
+                "ollama_model": getattr(self.config, "ollama_model", "ech0-knowledge-v4:latest"),
+                "ollama_host": getattr(self.config, "ollama_host", "http://localhost:11434"),
+                "temperature": getattr(self.config, "temperature", 0.35),
+                "max_examples_per_domain": getattr(self.config, "max_examples_per_domain", 200),
             },
             "model_path": model_path,
             "training_state": self.training_engine.training_state if self.training_engine else None,

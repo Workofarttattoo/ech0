@@ -1,0 +1,10 @@
+{
+  "examples": 2,
+  "avg_tokens": 245.0,
+  "max_tokens": 265,
+  "skipped_quality": 0,
+  "skipped_tokens": 0,
+  "secret_redactions": 0,
+  "deduplicated": 1998,
+  "input_path": "/Users/noone/ech0/ech0_training/data/raw/materials_science_dataset.jsonl"
+}

@@ -1,0 +1,32 @@
+run_name: "domain_full_finetune"
+base_model: "meta-llama/Llama-2-7b-hf"
+dataset:
+  path: "ech0_training/data/processed/sample_conversations.jsonl"
+  prompt_column: "prompt"
+  completion_column: "completion"
+  tags_column: "tags"
+  quality_column: "quality_score"
+  max_samples: 256
+  eval_split: 0.1
+training:
+  num_epochs: 3
+  learning_rate: 1.5e-4
+  batch_size: 1
+  gradient_accumulation_steps: 16
+  max_steps: 200
+  weight_decay: 0.1
+  warmup_steps: 20
+  logging_steps: 10
+  save_steps: 50
+  fp16: false
+  bf16: true
+lora:
+  enabled: false
+output:
+  root_dir: "ech0_training/models"
+  push_to_hub: false
+logging:
+  backend: "local"
+  project: "ech0-training"
+  run_group: "full"
+

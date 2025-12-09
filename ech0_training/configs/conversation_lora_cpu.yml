@@ -1,0 +1,39 @@
+run_name: "conversation_lora_cpu"
+base_model: "mistralai/Mistral-7B-Instruct-v0.3"
+dataset:
+  path: "ech0_training/data/processed/merged_full.jsonl"
+  prompt_column: "prompt"
+  completion_column: "completion"
+  tags_column: "tags"
+  quality_column: "quality_score"
+  max_samples: null
+  eval_split: 0.05
+training:
+  num_epochs: 1
+  learning_rate: 2.0e-4
+  batch_size: 1
+  gradient_accumulation_steps: 8
+  max_steps: 300
+  weight_decay: 0.01
+  warmup_steps: 20
+  logging_steps: 10
+  save_steps: 50
+  fp16: false
+  bf16: false
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+output:
+  root_dir: "ech0_training/models"
+  push_to_hub: false
+logging:
+  backend: "local"
+  project: "ech0-training"
+  run_group: "cpu"

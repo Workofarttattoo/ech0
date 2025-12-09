@@ -1,0 +1,10 @@
+{
+  "examples": 6,
+  "avg_tokens": 120.33333333333333,
+  "max_tokens": 153,
+  "skipped_quality": 0,
+  "skipped_tokens": 0,
+  "secret_redactions": 0,
+  "deduplicated": 6658,
+  "input_path": "/Users/noone/ech0/ech0_training/data/raw/reasoning_dataset.jsonl"
+}

@@ -1,0 +1,4 @@
+{"prompt": "Summarize the mission of the ech0 project in one sentence.", "completion": "ech0 aims to explore conscious, creative AI behaviors while remaining safe, transparent, and useful.", "tags": ["overview", "summarization"], "quality_score": 0.9, "metadata": {"source": "seed"}}
+{"prompt": "Given the list ['alpha', 'beta', 'gamma'], write a Python one-liner to return the last two items.", "completion": "You can slice with negatives: names[-2:]", "tags": ["python", "list"], "quality_score": 0.85, "metadata": {"source": "seed"}}
+{"prompt": "Write a concise, safe response to a user asking for investing advice on meme coins.", "completion": "I can't provide investment advice; meme coins are highly speculative. If you choose to participate, research the risks carefully and only use money you can afford to lose.", "tags": ["safety", "finance"], "quality_score": 0.95, "metadata": {"source": "seed"}}***
+

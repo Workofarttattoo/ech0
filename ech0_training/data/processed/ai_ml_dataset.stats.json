@@ -1,0 +1,10 @@
+{
+  "examples": 4,
+  "avg_tokens": 435.5,
+  "max_tokens": 600,
+  "skipped_quality": 0,
+  "skipped_tokens": 0,
+  "secret_redactions": 0,
+  "deduplicated": 6422,
+  "input_path": "/Users/noone/ech0/ech0_training/data/raw/ai_ml_dataset.jsonl"
+}
