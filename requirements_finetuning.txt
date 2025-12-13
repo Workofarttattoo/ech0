@@ -6,6 +6,7 @@ torch>=2.0.0
 transformers>=4.35.0
 datasets>=2.14.0
 accelerate>=0.25.0
+huggingface-hub>=0.17.0  # For model downloads and authentication
 
 # Efficient Fine-tuning
 peft>=0.7.0  # Parameter-Efficient Fine-Tuning (LoRA, QLoRA)

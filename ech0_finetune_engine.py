@@ -210,24 +210,51 @@ class Ech0FinetuneEngine:
             bnb_4bit_use_double_quant=True
         )
 
-        # Load model
-        self.model = AutoModelForCausalLM.from_pretrained(
-            self.config.base_model,
-            quantization_config=bnb_config,
-            device_map="auto",
-            trust_remote_code=True,
-            cache_dir=self.config.cache_dir
-        )
+        # Try to load model with authentication error handling
+        try:
+            # Load model
+            self.model = AutoModelForCausalLM.from_pretrained(
+                self.config.base_model,
+                quantization_config=bnb_config,
+                device_map="auto",
+                trust_remote_code=True,
+                cache_dir=self.config.cache_dir
+            )
+        except Exception as e:
+            error_msg = str(e).lower()
+            if "401" in error_msg or "unauthorized" in error_msg or "token" in error_msg:
+                logger.error(f"❌ Authentication error: {e}")
+                logger.error("Your HuggingFace token may be expired or invalid.")
+                logger.error("To fix this:")
+                logger.error("  1. Update your token: run 'huggingface-cli login'")
+                logger.error("  2. Or use a public model that doesn't require authentication")
+                logger.error("  3. Or set HF_TOKEN environment variable with a valid token")
+                raise
+            else:
+                raise
 
         # Prepare model for k-bit training
         self.model = prepare_model_for_kbit_training(self.model)
 
         # Load tokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            self.config.base_model,
-            trust_remote_code=True,
-            cache_dir=self.config.cache_dir
-        )
+        try:
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                self.config.base_model,
+                trust_remote_code=True,
+                cache_dir=self.config.cache_dir
+            )
+        except Exception as e:
+            error_msg = str(e).lower()
+            if "401" in error_msg or "unauthorized" in error_msg or "token" in error_msg:
+                logger.error(f"❌ Authentication error loading tokenizer: {e}")
+                logger.error("Your HuggingFace token may be expired or invalid.")
+                logger.error("To fix this:")
+                logger.error("  1. Update your token: run 'huggingface-cli login'")
+                logger.error("  2. Or use a public model that doesn't require authentication")
+                logger.error("  3. Or set HF_TOKEN environment variable with a valid token")
+                raise
+            else:
+                raise
 
         # Set padding token
         if self.tokenizer.pad_token is None:
