@@ -16,6 +16,7 @@ try:
     from ech0_finetune_engine import Ech0FinetuneEngine, Ech0TrainingConfig
     from ech0_dataset_generator import Ech0DatasetOrchestrator
     from ech0_evaluation_framework import Ech0EvaluationFramework
+    from ech0_external_drive_manager import get_wisdom_storage_path, ExternalDriveManager
 except ImportError as e:
     print(f"❌ Error importing ech0 modules: {e}")
     print("Make sure all ech0 fine-tuning scripts are in the same directory")
@@ -54,6 +55,11 @@ class Ech0TrainingOrchestrator:
         """Setup all components"""
         logger.info("\n📋 STEP 1: SETUP")
         logger.info("-" * 100)
+
+        # Check for external drive
+        logger.info("🔍 Checking for external drive connectivity...")
+        drive_manager = ExternalDriveManager(preferred_label="ech0")
+        drive_manager.monitor_and_report()
 
         # Load configuration
         logger.info(f"Loading configuration from {self.config_path}")

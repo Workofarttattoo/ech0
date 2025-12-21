@@ -43,6 +43,14 @@ except ImportError:
     print("⚠️  Warning: transformers/peft not installed. Install with:")
     print("pip install transformers peft datasets accelerate bitsandbytes")
 
+# External drive manager
+try:
+    from ech0_external_drive_manager import get_wisdom_storage_path
+    EXTERNAL_DRIVE_AVAILABLE = True
+except ImportError:
+    EXTERNAL_DRIVE_AVAILABLE = False
+    logger.debug("External drive manager not available")
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
@@ -177,6 +185,19 @@ class Ech0FinetuneEngine:
 
     def _setup_directories(self):
         """Create necessary directories for training"""
+        # Check if we should use external drive for data storage
+        if EXTERNAL_DRIVE_AVAILABLE and get_wisdom_storage_path:
+            try:
+                logger.info("🔍 Checking for external drive for data storage...")
+                external_data_path = get_wisdom_storage_path(preferred_label="ech0")
+
+                # Update data_dir to use external drive if found
+                if external_data_path != Path("./ech0_training_data"):
+                    logger.info(f"💾 Using external drive for training data: {external_data_path}")
+                    self.config.data_dir = str(external_data_path)
+            except Exception as e:
+                logger.warning(f"Could not use external drive: {e}")
+
         dirs = [
             self.config.output_dir,
             self.config.checkpoint_dir,

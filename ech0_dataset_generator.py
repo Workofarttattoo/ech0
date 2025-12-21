@@ -27,6 +27,13 @@ import yaml
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Import external drive manager for automatic drive detection
+try:
+    from ech0_external_drive_manager import get_wisdom_storage_path
+except ImportError:
+    logger.warning("External drive manager not available, using local storage only")
+    get_wisdom_storage_path = None
+
 
 @dataclass
 class TrainingExample:
@@ -715,8 +722,14 @@ class Ech0DatasetOrchestrator:
     def __init__(self, config_path: str = "ech0_finetune_config.yaml"):
         self.config = self._load_config(config_path)
         self.generators = self._initialize_generators()
-        self.output_dir = Path("./ech0_training_data")
-        self.output_dir.mkdir(exist_ok=True)
+
+        # Use external drive if available, otherwise fall back to local storage
+        if get_wisdom_storage_path:
+            logger.info("🔍 Checking for external drive...")
+            self.output_dir = get_wisdom_storage_path(preferred_label="ech0")
+        else:
+            self.output_dir = Path("./ech0_training_data")
+            self.output_dir.mkdir(exist_ok=True)
 
     def _load_config(self, config_path: str) -> Dict:
         """Load configuration from YAML"""
