@@ -211,16 +211,32 @@ domains:
 
 # Data Sources and Collection
 data_sources:
+  # Grounded Dataset Generation (default - always use first)
+  grounded:
+    enabled: true
+    use_only_grounded: true  # Use only pre-defined grounded knowledge (no API calls)
+    description: "Pre-defined verified knowledge - no external dependencies"
+
+  # Ollama Integration (optional - for enhanced generation)
+  ollama:
+    enabled: false  # Set to true to use Ollama for richer dataset generation
+    base_url: "http://localhost:11434"
+    model: "mistral"  # or "llama2", "codellama", "mixtral", etc.
+    timeout: 300  # 5 minutes
+    max_retries: 3
+    temperature: 0.7
+    description: "Local LLM generation - run 'ollama serve' first"
+
   # Synthetic Data Generation
   synthetic:
-    enabled: true
-    use_claude_api: true
+    enabled: false  # Disabled by default (requires API keys)
+    use_claude_api: false
     use_gpt4_api: false
     quality_threshold: 0.8
 
   # Public Datasets
   public_datasets:
-    enabled: true
+    enabled: false  # Disabled by default
     sources:
       - "huggingface"
       - "kaggle"

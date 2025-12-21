@@ -2,13 +2,21 @@
 """
 ech0 Grounded Dataset Generator
 Generates training data grounded in real, verified knowledge sources
+Optionally enhanced with Ollama for richer examples
 """
 
 import random
 import logging
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from datetime import datetime
 from ech0_dataset_generator import TrainingExample
+
+# Optional Ollama integration
+try:
+    from ech0_ollama_integration import OllamaGenerator, OllamaConfig, check_ollama_status
+    OLLAMA_AVAILABLE = True
+except ImportError:
+    OLLAMA_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -317,15 +325,51 @@ class GroundedDatasetGenerator:
         return examples
 
 
-def generate_grounded_dataset(orchestrator) -> Dict[str, List[TrainingExample]]:
-    """Generate 1M dataset using grounded knowledge"""
+def generate_grounded_dataset(orchestrator, use_ollama: bool = False) -> Dict[str, List[TrainingExample]]:
+    """
+    Generate 1M dataset using grounded knowledge
+
+    Args:
+        orchestrator: Dataset orchestrator instance
+        use_ollama: If True and available, enhance generation with Ollama (optional)
+
+    Returns:
+        Dictionary of domain -> training examples
+    """
     logger.info("=" * 80)
     logger.info("🎯 ech0 GROUNDED DATASET GENERATION (1M SAMPLES)")
     logger.info("Generating training data grounded in real, verified knowledge sources")
+
+    # Check configuration for Ollama
+    config = orchestrator.config
+    data_sources = config.get("data_sources", {})
+    ollama_config = data_sources.get("ollama", {})
+    grounded_config = data_sources.get("grounded", {})
+
+    # Determine if we should use Ollama (disabled by default)
+    use_only_grounded = grounded_config.get("use_only_grounded", True)
+    ollama_enabled = ollama_config.get("enabled", False) and not use_only_grounded
+
+    if use_ollama and ollama_enabled and OLLAMA_AVAILABLE:
+        # Check if Ollama is actually running
+        status = check_ollama_status()
+        if status['available']:
+            logger.info(f"🤖 Ollama integration ENABLED")
+            logger.info(f"   Model: {ollama_config.get('model', 'mistral')}")
+            logger.info(f"   Available: {', '.join(status['models'])}")
+        else:
+            logger.warning(f"⚠️  Ollama not running: {status.get('error')}")
+            logger.info("   Falling back to grounded data only")
+            use_ollama = False
+    else:
+        logger.info("📚 Using GROUNDED DATA ONLY (pre-defined verified knowledge)")
+        if not ollama_enabled:
+            logger.info("   To enable Ollama: Set data_sources.ollama.enabled = true in config")
+        use_ollama = False
+
     logger.info("=" * 80)
 
     all_datasets = {}
-    config = orchestrator.config
     domains_config = config.get("domains", {})
     grounded_gen = GroundedDatasetGenerator()
 
