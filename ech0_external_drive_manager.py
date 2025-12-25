@@ -78,7 +78,17 @@ class ExternalDriveManager:
         """Fallback method: Check common external drive mount points"""
         external_drives = []
 
-        # Check /media directory
+        # Check /Volumes directory (macOS)
+        volumes_path = Path('/Volumes')
+        if volumes_path.exists():
+            for drive_dir in volumes_path.iterdir():
+                # Skip Macintosh HD and other system volumes
+                if drive_dir.is_dir() and drive_dir.name not in ['Macintosh HD', 'Preboot', 'Recovery', 'VM', 'Data']:
+                    if os.access(drive_dir, os.W_OK):
+                        external_drives.append((str(drive_dir), drive_dir.name, 'unknown'))
+                        logger.info(f"   Found drive: {drive_dir} ({drive_dir.name})")
+
+        # Check /media directory (Linux)
         media_path = Path('/media')
         if media_path.exists():
             for user_dir in media_path.iterdir():
@@ -87,7 +97,7 @@ class ExternalDriveManager:
                         if drive_dir.is_dir() and os.access(drive_dir, os.W_OK):
                             external_drives.append((str(drive_dir), drive_dir.name, 'unknown'))
 
-        # Check /mnt directory
+        # Check /mnt directory (Linux)
         mnt_path = Path('/mnt')
         if mnt_path.exists():
             for drive_dir in mnt_path.iterdir():
