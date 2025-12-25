@@ -5,6 +5,7 @@ Automatically detect and use external drives for wisdom ingestion/training data 
 """
 
 import os
+import json
 import logging
 import subprocess
 from pathlib import Path
@@ -46,13 +47,12 @@ class ExternalDriveManager:
             )
 
             if result.returncode == 0:
-                import json
                 data = json.loads(result.stdout)
                 for device in data.get('blockdevices', []):
                     self._extract_external_mounts(device, external_drives)
-        except (subprocess.TimeoutExpired, FileNotFoundError, json.JSONDecodeError):
-            # Fallback to checking common mount points
-            logger.debug("lsblk not available, using fallback detection")
+        except (subprocess.TimeoutExpired, FileNotFoundError, json.JSONDecodeError) as e:
+            # Fallback to checking common mount points (macOS doesn't have lsblk)
+            logger.debug(f"lsblk not available ({e.__class__.__name__}), using fallback detection")
             external_drives = self._detect_via_mount_points()
 
         return external_drives
